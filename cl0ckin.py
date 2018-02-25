@@ -68,6 +68,7 @@ class ClockIn():
 	fontScale              = 1
 	fontColor              = (0,0,0)
 	lineType               = 2
+	persons_info = None
 	persons_info_queue = Queue.Queue()
 	fider = FaceIdentifier()
 	last_update_persons_info_time = 0
@@ -80,11 +81,11 @@ class ClockIn():
 	
 	def get_persons_info_from_queue(self):
 		try:
-			persons_info = self.persons_info_queue.get(False)
+			tmp = self.persons_info_queue.get(False)
 			print('!!!!get!!!!')
-			return persons_info
+			return tmp
 		except:
-			return None
+			return self.persons_info
 
 	def start(self):
 		while True:
@@ -95,8 +96,8 @@ class ClockIn():
 				self.fider.get_persons_from_image_async('test.jpg', self.persons_info_queue)
 				self.last_update_persons_info_time = current_time
 
-			persons_info = self.get_persons_info_from_queue()
-			if persons_info:
+			self.persons_info = self.get_persons_info_from_queue()
+			if self.persons_info:
 				cv2.putText(frame,'Hello World!', self.bottomLeftCornerOfText, self.font, self.fontScale, self.fontColor, self.lineType)
 			
 			cv2.imshow('Company Meeting Check In Sys', frame)
