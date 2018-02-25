@@ -79,12 +79,13 @@ class PersonGroup(MSFaceAPI):
 		return
 
 	def train_person_group( self, person_group_id ):
-		url_persongroup = self.get_basic_url+'/'+person_group_id
+		url_persongroup = self.get_basic_url() + '/' + person_group_id + '/train'
+		print( url_persongroup )
 		headers = {
 			'Ocp-Apim-Subscription-Key':self.apiKey
 		}
 		response = requests.post(url_persongroup,headers=headers)
-		print( response)
+		print( response.content )
 		print( str(self.get_basic_url()) )
 		return
 	def get_group( self, person_group_id ):
@@ -144,4 +145,6 @@ class Person(MSFaceAPI):
 		}
 		response = requests.get(url_person,headers=headers)
 		print(response.content)
-		return json.loads(response.text)
+		return
+pgroup = PersonGroup()
+pgroup.train_person_group('yuhsiang')
