@@ -55,18 +55,9 @@ class FaceIdentifier():
 			_thread.start_new_thread( self.get_persons_from_image, ('test.jpg', ) )
 		except:
 			print ("Error: cannot start thread")
-		print('async done! get: '+ str(persons_info))
 
 # fider = FaceIdentifier()
 # fider.get_persons_from_image('test.jpg')
-class ClockIn():
-	video_capture = cv2.VideoCapture(0)
-	font                   = cv2.FONT_HERSHEY_SIMPLEX
-	bottomLeftCornerOfText = (10,250)
-	fontScale              = 1
-	fontColor              = (0,0,0)
-	lineType               = 2
-	persons_info = None
 
 class ClockIn():
 	video_capture = cv2.VideoCapture(0)
@@ -94,7 +85,7 @@ class ClockIn():
 
 			current_time = time.time()
 			if (current_time - self.last_update_persons_info_time) > self.update_period:
-				self.fider.get_persons_from_image_async('test.jpg', self.persons_info)
+				self.fider.get_persons_from_image_async('test.jpg', self.set_persons_info)
 				self.last_update_persons_info_time = current_time
 
 			if self.persons_info:
