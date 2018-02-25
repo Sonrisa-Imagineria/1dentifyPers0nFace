@@ -19,13 +19,43 @@ class Face(MSFaceAPI):
 	def __init__(self):
 		print ("Calling face constructor")
 
-	def detect( self ):
-		print( str(self.get_basic_url()) )
-		return
+	def detect_file( self, image ):
+		url_face = self.get_basic_url() + 'detect'
+		print( url_face )
+		headers = {
+			'Content-Type':'application/octet-stream',
+			'Ocp-Apim-Subscription-Key':self.apiKey
+		}
+		image_data = open(image, 'rb').read()
+		resp = requests.post(url_face, data=image_data, headers=headers)
+		return json.loads(resp.text)
 
-	def identify( self ):
-		print( str(self.get_basic_url()) )
-		return
+	def detect_url( self, url ):
+		url_face = self.get_basic_url() + 'detect'
+		print( url_face )
+		headers = {
+			'Ocp-Apim-Subscription-Key':self.apiKey
+		}
+		payload = {
+			'url' : url	
+		}
+		resp = requests.post(url_face, data=json.dumps(payload), headers=headers)
+		return json.loads(resp.text)
+
+	def identify( self, face_ids, person_group_id, max_condidates=1, confidence_threshold=0 ):
+		url_face = self.get_basic_url() + 'identify'
+		print( url_face )
+		headers = {
+			'Ocp-Apim-Subscription-Key':self.apiKey
+		}
+		payload = {
+			'personGroupId' : person_group_id,
+			'faceIds' : face_ids,
+			'maxNumOfCandidatesReturned' : max_condidates,
+			'confidenceThreshold' : confidence_threshold
+		}
+		resp = requests.post(url_face, data=json.dumps(payload), headers=headers)
+		return json.loads(resp.text)
 
 class PersonGroup(MSFaceAPI):
 	def __init__(self):
