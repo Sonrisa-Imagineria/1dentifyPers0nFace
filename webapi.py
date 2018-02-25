@@ -37,7 +37,7 @@ class Face(MSFaceAPI):
 			'Ocp-Apim-Subscription-Key':self.apiKey
 		}
 		payload = {
-			'url' : url	
+			'url' : url
 		}
 		resp = requests.post(url_face, data=json.dumps(payload), headers=headers)
 		return json.loads(resp.text)
@@ -145,4 +145,4 @@ class Person(MSFaceAPI):
 		}
 		response = requests.get(url_person,headers=headers)
 		print(response.content)
-		return
+		return json.loads(response.text)

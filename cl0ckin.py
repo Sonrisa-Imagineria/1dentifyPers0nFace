@@ -35,9 +35,10 @@ class FaceIdentifier():
 		for face in face_res:
 			face_ids.append(face['faceId'])
 		persons_info = self.get_person_ids(face_ids)
-
+		print(persons_info)
 		for pinfo in persons_info:
 			person = self.personAPI.get_person_info('yuhsiang', pinfo['personId'])
+			print(pinfo['personId'])
 			pinfo['name'] = person['name']
 			pinfo['alias'] = person['userData']
 			for face in face_res:
@@ -45,12 +46,12 @@ class FaceIdentifier():
 					pinfo['faceRectangle'] = face['faceRectangle']
 					break;
 
-		
+
 		print(json.dumps(persons_info))
 		return persons_info
 
-#fider = FaceIdentifier()
-#fider.get_persons_from_image('test.jpg')
+# fider = FaceIdentifier()
+# fider.get_persons_from_image('test.jpg')
 
 video_capture = cv2.VideoCapture(0)
 font                   = cv2.FONT_HERSHEY_SIMPLEX
