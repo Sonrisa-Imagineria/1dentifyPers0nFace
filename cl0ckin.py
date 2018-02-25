@@ -6,6 +6,7 @@ import cv2
 import json
 import _thread
 import time
+import queue as Queue
 from webapi import MSFaceAPI
 from webapi import Face
 from webapi import PersonGroup
@@ -30,7 +31,7 @@ class FaceIdentifier():
 			})
 		return ret
 
-	def get_persons_from_image( self, image='caputre.jpg' ):
+	def get_persons_from_image( self, image, out_queue ):
 		face_res = self.faceAPI.detect_file(image)
 
 		face_ids = []
@@ -48,11 +49,12 @@ class FaceIdentifier():
 					break;
 
 		print(json.dumps(persons_info))
+		out_queue.put(persons_info)
 		return persons_info
 
-	def get_persons_from_image_async( self, image, persons_info ):
+	def get_persons_from_image_async( self, image, persons_info_queue ):
 		try:
-			_thread.start_new_thread( self.get_persons_from_image, ('test.jpg', ) )
+			_thread.start_new_thread( self.get_persons_from_image, ('test.jpg', persons_info_queue ) )
 		except:
 			print ("Error: cannot start thread")
 
@@ -66,7 +68,7 @@ class ClockIn():
 	fontScale              = 1
 	fontColor              = (0,0,0)
 	lineType               = 2
-	persons_info = None
+	persons_info_queue = Queue.Queue()
 	fider = FaceIdentifier()
 	last_update_persons_info_time = 0
 	update_period = 7
@@ -76,8 +78,13 @@ class ClockIn():
 		self.video_capture.set(3,640)
 		self.video_capture.set(4,480)
 	
-	def set_persons_info( self, persons_info ):
-		self.persons_info = personse_info
+	def get_persons_info_from_queue(self):
+		try:
+			persons_info = self.persons_info_queue.get(False)
+			print('!!!!get!!!!')
+			return persons_info
+		except:
+			return None
 
 	def start(self):
 		while True:
@@ -85,10 +92,11 @@ class ClockIn():
 
 			current_time = time.time()
 			if (current_time - self.last_update_persons_info_time) > self.update_period:
-				self.fider.get_persons_from_image_async('test.jpg', self.set_persons_info)
+				self.fider.get_persons_from_image_async('test.jpg', self.persons_info_queue)
 				self.last_update_persons_info_time = current_time
 
-			if self.persons_info:
+			persons_info = self.get_persons_info_from_queue()
+			if persons_info:
 				cv2.putText(frame,'Hello World!', self.bottomLeftCornerOfText, self.font, self.fontScale, self.fontColor, self.lineType)
 			
 			cv2.imshow('Company Meeting Check In Sys', frame)
