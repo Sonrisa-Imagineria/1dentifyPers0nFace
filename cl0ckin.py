@@ -59,6 +59,14 @@ class FaceIdentifier():
 
 # fider = FaceIdentifier()
 # fider.get_persons_from_image('test.jpg')
+class ClockIn():
+	video_capture = cv2.VideoCapture(0)
+	font                   = cv2.FONT_HERSHEY_SIMPLEX
+	bottomLeftCornerOfText = (10,250)
+	fontScale              = 1
+	fontColor              = (0,0,0)
+	lineType               = 2
+	persons_info = None
 
 class ClockIn():
 	video_capture = cv2.VideoCapture(0)
