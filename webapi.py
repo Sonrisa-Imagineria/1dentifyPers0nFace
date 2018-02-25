@@ -116,5 +116,3 @@ class Person(MSFaceAPI):
 		response = requests.get(url_person,headers=headers)
 		print(response.content)
 		return
-pgroup = PersonGroup()
-pgroup.train_person_group('yuhsiang')
