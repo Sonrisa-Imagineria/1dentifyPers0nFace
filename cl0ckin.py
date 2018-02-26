@@ -23,6 +23,7 @@ class FaceIdentifier():
 
 	def get_person_ids( self, face_ids ):
 		res = self.faceAPI.identify(face_ids, self.personGroupId)
+		print(res)
 		ret = []
 		for x in range(len(res)):
 			ret.append({
@@ -37,7 +38,10 @@ class FaceIdentifier():
 
 		face_ids = []
 		for face in face_res:
-			face_ids.append(face['faceId'])
+			if type(face)==type({}):
+				face_ids.append(face['faceId'])
+		if len(face_ids)==0:
+			return None
 		persons_info = self.get_person_ids(face_ids)
 
 		for pinfo in persons_info:
@@ -72,7 +76,7 @@ class ClockIn():
 	persons_info_queue = Queue.Queue()
 	fider = FaceIdentifier()
 	last_update_persons_info_time = 0
-	update_period = 7
+	update_period = 1
 
 	def __init__(self):
 		print( 'WIDTH',self.video_capture.get(3),'HEIGHT',self.video_capture.get(4))
@@ -92,10 +96,10 @@ class ClockIn():
 	def add_name_tag(self, frame, per_info):
 		name = per_info['name']
 		leftTop = (per_info['faceRectangle']['left'], per_info['faceRectangle']['top'])
-		rightBottom = (per_info['faceRectangle']['left'] + per_info['faceRectangle']['width'], 
+		rightBottom = (per_info['faceRectangle']['left'] + per_info['faceRectangle']['width'],
 						per_info['faceRectangle']['top'] + per_info['faceRectangle']['height'])
 		img = np.zeros((512,512,3), np.uint8)
-		print(name)
+		# print(name)
 		cv2.rectangle(frame, leftTop, rightBottom, (55, 255, 155), 5)
 		cv2.putText(frame, name, leftTop, self.font, self.fontScale, self.fontColor, self.lineType)
 	def start(self):
@@ -105,13 +109,14 @@ class ClockIn():
 
 			current_time = time.time()
 			if (current_time - self.last_update_persons_info_time) > self.update_period:
+				out = cv2.imwrite('capture.jpg', frame)
 				self.fider.get_persons_from_image_async('capture.jpg', self.persons_info_queue)
 				self.last_update_persons_info_time = current_time
-			tmp_info = self.get_persons_info_from_queue()
-			if tmp_info:
-				print('tmp-info///yes!')
-				print(tmp_info)
-				info = tmp_info
+				info = self.get_persons_info_from_queue()
+				"""if tmp_info:
+					print('tmp-info///yes!')
+					print(tmp_info)
+					info = tmp_info """
 			# print(persons_info)
 			if info:
 				# print(len(info))
@@ -121,7 +126,6 @@ class ClockIn():
 				# cv2.putText(frame,info[0]['name'], self.bottomLeftCornerOfText, self.font, self.fontScale, self.fontColor, self.lineType)
 
 			cv2.imshow('Company Meeting Check In Sys', frame)
-			out = cv2.imwrite('capture.jpg', frame)
 
 			if cv2.waitKey(1) & 0xFF == ord('q'):
 				break;

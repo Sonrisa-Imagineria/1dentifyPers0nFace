@@ -21,7 +21,7 @@ class Face(MSFaceAPI):
 
 	def detect_file( self, image ):
 		url_face = self.get_basic_url() + 'detect'
-		print( url_face )
+		# print( url_face )
 		headers = {
 			'Content-Type':'application/octet-stream',
 			'Ocp-Apim-Subscription-Key':self.apiKey
@@ -32,7 +32,7 @@ class Face(MSFaceAPI):
 
 	def detect_url( self, url ):
 		url_face = self.get_basic_url() + 'detect'
-		print( url_face )
+		# print( url_face )
 		headers = {
 			'Ocp-Apim-Subscription-Key':self.apiKey
 		}
@@ -44,7 +44,7 @@ class Face(MSFaceAPI):
 
 	def identify( self, face_ids, person_group_id, max_condidates=1, confidence_threshold=0 ):
 		url_face = self.get_basic_url() + 'identify'
-		print( url_face )
+		# print( url_face )
 		headers = {
 			'Ocp-Apim-Subscription-Key':self.apiKey
 		}
@@ -73,20 +73,20 @@ class PersonGroup(MSFaceAPI):
 		}
 		#TODO: add userdata if exists
 		response = requests.put(url_persongroup,data=json.dumps(payload),headers=headers)
-		print ( url_persongroup )
-		print ( response )
-		print( str(self.get_basic_url()) )
+		# print ( url_persongroup )
+		# print ( response )
+		# print( str(self.get_basic_url()) )
 		return
 
 	def train_person_group( self, person_group_id ):
 		url_persongroup = self.get_basic_url() + '/' + person_group_id + '/train'
-		print( url_persongroup )
+		# print( url_persongroup )
 		headers = {
 			'Ocp-Apim-Subscription-Key':self.apiKey
 		}
 		response = requests.post(url_persongroup,headers=headers)
-		print( response.content )
-		print( str(self.get_basic_url()) )
+		# print( response.content )
+		# print( str(self.get_basic_url()) )
 		return
 	def get_group( self, person_group_id ):
 		url_persongroup = self.get_basic_url()+'/'+person_group_id
@@ -95,7 +95,7 @@ class PersonGroup(MSFaceAPI):
 		}
 		response = requests.get(url_persongroup,headers=headers)
 
-		print( response )
+		# print( response )
 		return
 class Person(MSFaceAPI):
 	def __init__(self):
@@ -104,7 +104,7 @@ class Person(MSFaceAPI):
 
 	def	create( self, person_group_id, person_name, person_alias):
 		url_person = self.get_basic_url() + '/' + person_group_id + '/persons'
-		print( url_person )
+		# print( url_person )
 		headers = {
 			'Ocp-Apim-Subscription-Key':self.apiKey
 		}
@@ -113,8 +113,8 @@ class Person(MSFaceAPI):
 			'userData': person_alias
 		}
 		response = requests.post(url_person,data=json.dumps(payload),headers=headers)
-		print('create person')
-		print( response )
+		# print('create person')
+		# print( response )
 		return
 	def	add_a_face( self, person_group_id, person_id, person_url ):
 		print('add_a_face')
@@ -126,7 +126,7 @@ class Person(MSFaceAPI):
 			'url': person_url
 		}
 		response = requests.post(url_person,data=json.dumps(payload),headers=headers)
-		print(response.content)
+		# print(response.content)
 		return
 	def get_person_list( self, person_group_id ):
 		print('get person list')
@@ -135,7 +135,7 @@ class Person(MSFaceAPI):
 			'Ocp-Apim-Subscription-Key':self.apiKey
 		}
 		response = requests.get(url_person,headers=headers)
-		print(response.content)
+		# print(response.content)
 		return
 	def get_person_info( self, person_group_id, person_id):
 		print( 'get a person')
@@ -144,5 +144,5 @@ class Person(MSFaceAPI):
 			'Ocp-Apim-Subscription-Key':self.apiKey
 		}
 		response = requests.get(url_person,headers=headers)
-		print(response.content)
+		# print(response.content)
 		return json.loads(response.text)
