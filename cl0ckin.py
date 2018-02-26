@@ -7,6 +7,7 @@ import json
 import _thread
 import time
 import queue as Queue
+import numpy as np
 from webapi import MSFaceAPI
 from webapi import Face
 from webapi import PersonGroup
@@ -48,13 +49,13 @@ class FaceIdentifier():
 					pinfo['faceRectangle'] = face['faceRectangle']
 					break;
 
-		print(json.dumps(persons_info))
+		#print(json.dumps(persons_info))
 		out_queue.put(persons_info)
 		return persons_info
 
 	def get_persons_from_image_async( self, image, persons_info_queue ):
 		try:
-			_thread.start_new_thread( self.get_persons_from_image, ('test.jpg', persons_info_queue ) )
+			_thread.start_new_thread( self.get_persons_from_image, (image, persons_info_queue ) )
 		except:
 			print ("Error: cannot start thread")
 
@@ -68,38 +69,57 @@ class ClockIn():
 	fontScale              = 1
 	fontColor              = (0,0,0)
 	lineType               = 2
-	persons_info = None
 	persons_info_queue = Queue.Queue()
 	fider = FaceIdentifier()
 	last_update_persons_info_time = 0
 	update_period = 7
-	
+
 	def __init__(self):
 		print( 'WIDTH',self.video_capture.get(3),'HEIGHT',self.video_capture.get(4))
 		self.video_capture.set(3,640)
 		self.video_capture.set(4,480)
-	
+
 	def get_persons_info_from_queue(self):
 		try:
-			tmp = self.persons_info_queue.get(False)
+			persons_info = self.persons_info_queue.get(False)
 			print('!!!!get!!!!')
-			return tmp
+			return persons_info
 		except:
-			return self.persons_info
-
+			return None
+	def put_position(self, left, height):
+		text_position = (left,height)
+		return text_position
+	def add_name_tag(self, frame, per_info):
+		name = per_info['name']
+		leftTop = (per_info['faceRectangle']['left'], per_info['faceRectangle']['top'])
+		rightBottom = (per_info['faceRectangle']['left'] + per_info['faceRectangle']['width'], 
+						per_info['faceRectangle']['top'] + per_info['faceRectangle']['height'])
+		img = np.zeros((512,512,3), np.uint8)
+		print(name)
+		cv2.rectangle(frame, leftTop, rightBottom, (55, 255, 155), 5)
+		cv2.putText(frame, name, leftTop, self.font, self.fontScale, self.fontColor, self.lineType)
 	def start(self):
+		info=None
 		while True:
 			ret, frame = self.video_capture.read()
 
 			current_time = time.time()
 			if (current_time - self.last_update_persons_info_time) > self.update_period:
-				self.fider.get_persons_from_image_async('test.jpg', self.persons_info_queue)
+				self.fider.get_persons_from_image_async('capture.jpg', self.persons_info_queue)
 				self.last_update_persons_info_time = current_time
+			tmp_info = self.get_persons_info_from_queue()
+			if tmp_info:
+				print('tmp-info///yes!')
+				print(tmp_info)
+				info = tmp_info
+			# print(persons_info)
+			if info:
+				# print(len(info))
+				for x in range(0, len(info)):
+					self.add_name_tag(frame, info[x])
+    			# 	print "We're on time %d" % (x)
+				# cv2.putText(frame,info[0]['name'], self.bottomLeftCornerOfText, self.font, self.fontScale, self.fontColor, self.lineType)
 
-			self.persons_info = self.get_persons_info_from_queue()
-			if self.persons_info:
-				cv2.putText(frame,'Hello World!', self.bottomLeftCornerOfText, self.font, self.fontScale, self.fontColor, self.lineType)
-			
 			cv2.imshow('Company Meeting Check In Sys', frame)
 			out = cv2.imwrite('capture.jpg', frame)
 
