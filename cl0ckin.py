@@ -86,7 +86,6 @@ class ClockIn():
 	def get_persons_info_from_queue(self):
 		try:
 			persons_info = self.persons_info_queue.get(False)
-			print('!!!!get!!!!')
 			return persons_info
 		except:
 			return None
