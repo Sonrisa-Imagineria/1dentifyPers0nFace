@@ -118,23 +118,26 @@ class Table():
 		print("%s successfully" % sql)
 		return
 
-	def insert(self, record):
+	def insert(self, vals):
 		c = self.db.get_cursor()
 		
-		keys = ''
-		vals = ''
+		keySql = ''
+		valSql = ''
 		for i, item in enumerate(record.items()):
-			keys += item[0]
-			vals += '\'' + str(item[1]) + '\''
+			keySql += item[0]
+			valSql += '\'' + str(item[1]) + '\''
 			if i != len(record) - 1:
-				keys += ', '
-				vals += ', '
-		sql = "INSERT INTO {0}({1}) VALUES ({2})".format(self.name, keys, vals)
+				keySql += ', '
+				valSql += ', '
+		sql = "INSERT INTO {0}({1}) VALUES ({2})".format(self.name, keySql, valSql)
 
-		c.execute(sql)
-		self.db.commit()
-		print("%s successfully" % sql)
-		return
+		try: 
+			c.execute(sql)
+			self.db.commit()
+			print("%s successfully" % sql)
+			return Reocrd(vals, self.schema)
+		except:
+			return None
 
 	def row_to_record(self, row):
 		vals = {}

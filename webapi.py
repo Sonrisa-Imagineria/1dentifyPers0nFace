@@ -76,8 +76,7 @@ class PersonGroup(MSFaceAPI):
 		# print ( url_persongroup )
 		# print ( response )
 		# print( str(self.get_basic_url()) )
-		return
-
+		return json.loads(response.text)
 	def train_person_group( self, person_group_id ):
 		url_persongroup = self.get_basic_url() + '/' + person_group_id + '/train'
 		# print( url_persongroup )
@@ -87,7 +86,7 @@ class PersonGroup(MSFaceAPI):
 		response = requests.post(url_persongroup,headers=headers)
 		# print( response.content )
 		# print( str(self.get_basic_url()) )
-		return
+		return json.loads(response.text)
 	def get_group( self, person_group_id ):
 		url_persongroup = self.get_basic_url()+'/'+person_group_id
 		headers = {
@@ -96,7 +95,7 @@ class PersonGroup(MSFaceAPI):
 		response = requests.get(url_persongroup,headers=headers)
 
 		# print( response )
-		return
+		return json.loads(response.text)
 class Person(MSFaceAPI):
 	def __init__(self):
 		self.apiType = 'persongroups'
@@ -115,7 +114,7 @@ class Person(MSFaceAPI):
 		response = requests.post(url_person,data=json.dumps(payload),headers=headers)
 		# print('create person')
 		# print( response )
-		return
+		return json.loads(response.text)
 	def	add_a_face( self, person_group_id, person_id, person_url ):
 		print('add_a_face')
 		url_person = self.get_basic_url() + '/' + person_group_id + '/persons/' + person_id + '/persistedFaces'
@@ -127,7 +126,7 @@ class Person(MSFaceAPI):
 		}
 		response = requests.post(url_person,data=json.dumps(payload),headers=headers)
 		# print(response.content)
-		return
+		return json.loads(response.text)
 	def get_person_list( self, person_group_id ):
 		print('get person list')
 		url_person = self.get_basic_url() + '/' + person_group_id + '/persons'
@@ -136,7 +135,7 @@ class Person(MSFaceAPI):
 		}
 		response = requests.get(url_person,headers=headers)
 		# print(response.content)
-		return
+		return json.loads(response.text)
 	def get_person_info( self, person_group_id, person_id):
 		print( 'get a person')
 		url_person = self.get_basic_url() + '/' + person_group_id + '/persons/' + person_id

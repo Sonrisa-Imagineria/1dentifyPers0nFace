@@ -1,4 +1,5 @@
 *.jpg
-__pycache__/
 *.swp
 *.db
+__pycache__/
+image/
