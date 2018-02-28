@@ -161,7 +161,7 @@ class ClockInDBBuilder():
 					# build person
 					self.build_person(name, alias)
 				# build face
-				imagePath = os.path.join(imageDir, filename)
+				imagePath = os.path.join(self.imageDir, filename)
 				self.build_face(imagePath, personId)
 		return
 
