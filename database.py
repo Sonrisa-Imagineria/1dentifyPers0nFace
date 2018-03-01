@@ -174,6 +174,8 @@ class Table():
 
 	def get_rec(self, key):
 		recs = self.select_rec(self.pk.name, key)
+		if len(recs) == 0:
+			return None
 		return recs[0]
 
 class Record():

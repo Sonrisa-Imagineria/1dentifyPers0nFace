@@ -100,6 +100,8 @@ class ClockIn():
 		return self.event
 
 	def clock_in(self, pid):
+		if not self.clkDB.get_person(pid):
+			return None
 		self.clkDB.set_clock_in(self.event.vals['id'], pid)
 		return self.is_clocked(pid)
 
@@ -147,20 +149,70 @@ class ClockIn():
 					info = tmp_info """
 			if info:
 				for x in range(0, len(info)):
-					self.add_name_tag(frame, info[x])
-					self.clock_in(self.event.vals['id'], info[x]['personId'])
+					if info[x]['confidence'] > 0.7:
+						self.clock_in(info[x]['personId'])
+						self.add_name_tag(frame, info[x])
+					#else:
+					#	self.add_warning_frame(frame,info[x])
+					#	self.alert_view()
 
 			cv2.imshow('Company Meeting Check In Sys', frame)
 
 			if cv2.waitKey(1) & 0xFF == ord('q'):
 				break;
 
+class AlertView():
+	root = None
+	frame = None
+	label = None 
+	text_field = None
+	button = None
+	
+	def __init__(self, callback):
+		self.root = tk.Tk()
+		self.frame = tk.Frame(self.root, bg='white')
+		self.label = tk.Label(self.frame, text="Alias",bg='white') 
+		self.text_field = tk.Text(self.frame, height=1, width=20)
+		self.button = tk.Button(self.frame, text="Submit", bg='gray', height=1, command=lambda: self.onclick(callback))
+
+	def onclick(self, callback):
+		content = self.text_field.get("1.0", "end-1c")
+		callback(content)
+
+	def show(self):
+		# optionally give it a title
+		self.root.title("Q3 Company Meeting")
+		# set the root window's height, width and x,y position
+		# x and y are the coordinates of the upper left corner
+		w = 300
+		h = 100
+		x = 50
+		y = 100
+		# use width x height + x_offset + y_offset (no spaces!)
+		self.root.geometry("%dx%d+%d+%d" % (w, h, x, y))
+		# use a colorful frame
+		self.frame.pack(fill='both', expand='yes')
+		# position a label on the frame using place(x, y)
+		# place(x=0, y=0) would be the upper left frame corner
+		self.label.place(x=20, y=30)
+		# put the button below the label, change y coordinate
+		self.text_field.place(x=60,y=30)
+
+		self.button.place(x=230, y=27)
+
+		self.root.mainloop()
+
 db = DB('localhost', 'test', '1234', 'testdb')
 clk = ClockIn(db)
 clk.clkDB.create_tables()
-clk.clkDB.set_person_group('ggg', 'groupname', 'pid', 'data')
+clk.clkDB.set_person_group('ggg', 'groupname', 'data')
 clk.clkDB.set_person('ppp', 'name', 'alias', 'ggg')
 clk.init_event('test_event', 'descc')
-res = clk.clock_in('ppp')
-print(clk.is_clocked('ppp'))
+clk.clock_in('ppp')
+if clk.is_clocked('ppp'):
+	print('ppp clockin!')
+if not clk.is_clocked('aaa'):
+	print('aaa not clockin!')
 #clk.start()
+alert = AlertView(clk.clock_in)
+alert.show()

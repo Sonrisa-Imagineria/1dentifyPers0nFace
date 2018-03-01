@@ -19,11 +19,10 @@ class ClockInDB():
 		self.db = db
 		self.init_tables()
 
-	def set_person_group(self, gid, name, pid, data):
+	def set_person_group(self, gid, name, data):
 		return self.tables['PersonGroup'].insert({
 			'gid' : gid,
 			'name' : name,
-			'pid' : pid,
 			'user_data' : data
 		})
 
@@ -75,7 +74,7 @@ class ClockInDB():
 	def get_clock_in(self, eid, pid):
 		results = self.tables['ClockIn'].select_rec('pid', pid)
 		for rec in results:
-			if eid == rec.get_val(eid):
+			if eid == rec.vals['eid']:
 				return rec
 		return None
 
@@ -181,7 +180,7 @@ class ClockInDBBuilder():
 			personId = resp['personId']
 			# save into db
 			personRec = self.clkDB.set_person(personId, alias, alias)
-			exsitingPerson[alias] = personRec
+			existingPerson[alias] = personRec
 		except:
 			print("Error: failed to build person")
 			personId = None
