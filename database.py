@@ -123,10 +123,10 @@ class Table():
 		
 		keySql = ''
 		valSql = ''
-		for i, item in enumerate(record.items()):
+		for i, item in enumerate(vals.items()):
 			keySql += item[0]
 			valSql += '\'' + str(item[1]) + '\''
-			if i != len(record) - 1:
+			if i != len(vals) - 1:
 				keySql += ', '
 				valSql += ', '
 		sql = "INSERT INTO {0}({1}) VALUES ({2})".format(self.name, keySql, valSql)

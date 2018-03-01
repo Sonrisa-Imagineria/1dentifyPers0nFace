@@ -20,7 +20,7 @@ class ClockInDB():
 		self.init_tables()
 
 	def set_person_group(self, gid, name, pid, data):
-		return tables['PersonGroup'].insert({
+		return self.tables['PersonGroup'].insert({
 			'gid' : gid,
 			'name' : name,
 			'pid' : pid,
@@ -28,10 +28,10 @@ class ClockInDB():
 		})
 
 	def get_person_group(self, gid):
-		return tables['PersonGroup'].get_rec(gid)
+		return self.tables['PersonGroup'].get_rec(gid)
 
 	def set_person(self, pid, name, alias, gid):
-		return tables['Person'].insert({
+		return self.tables['Person'].insert({
 			'pid' : pid,
 			'name' : name,
 			'alias' : alias,
@@ -39,37 +39,41 @@ class ClockInDB():
 		})
 
 	def get_person(self, pid):
-		return tables['Person'].get_rec(pid)
+		return self.tables['Person'].get_rec(pid)
 
 	def set_face(self, fid, image, pid):
-		return tables['Face'].insert({
+		return self.tables['Face'].insert({
 			'fid' : pid,
 			'name' : name,
 			'pid' : pid
 		})
 
 	def get_face(self, pid):
-		return tables['Face'].get_rec(fid)
+		return self.tables['Face'].get_rec(fid)
 
 	def set_event(self, name, description):
-		return tables['Event'].insert({
+		return self.tables['Event'].insert({
 			'name' : name,
 			'description' : description,
-			'timestamp' : int(time.localtime())
+			'timestamp' : int(time.time())
 		})
 
-	def get_event(self, pid):
-		return tables['Person'].get_rec(pid)
+	def get_event(self, name):
+		events = self.tables['Event'].select_rec('name', name)
+		if len(events) != 0:
+			return events[0]
+		else:
+			return None
 
 	def set_clock_in(self, eid, pid):
-		return tables['ClockIn'].insert({
-			'timestamp' : int(time.localtime()),
+		return self.tables['ClockIn'].insert({
+			'timestamp' : int(time.time()),
 			'eid' : eid,
 			'pid' : pid
 		})
 	
 	def get_clock_in(self, eid, pid):
-		results = tables['Event'].select_rec('pid', pid)
+		results = self.tables['Event'].select_rec('pid', pid)
 		for rec in results:
 			if eid == rec.get_val(eid):
 				return rec
@@ -192,8 +196,6 @@ class ClockInDBBuilder():
 			print("Error: failed to build face")
 			fid = None
 		return fid
-
-	
 
 
 db = DB('localhost', 'test', '1234', 'testdb')

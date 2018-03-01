@@ -12,6 +12,12 @@ from webapi import MSFaceAPI
 from webapi import Face
 from webapi import PersonGroup
 from webapi import Person
+from database import DB
+from database import Table
+from database import ForeignKey
+from database import Field
+from db_cl0ckin import ClockInDB
+from db_cl0ckin import ClockInDB
 
 class FaceIdentifier():
 	personGroupId = ''
@@ -77,11 +83,27 @@ class ClockIn():
 	fider = FaceIdentifier()
 	last_update_persons_info_time = 0
 	update_period = 1
+	clkDB = None
+	event = None
 
-	def __init__(self):
+	def __init__(self, db):
 		print( 'WIDTH',self.video_capture.get(3),'HEIGHT',self.video_capture.get(4))
 		self.video_capture.set(3,640)
 		self.video_capture.set(4,480)
+		self.clkDB = ClockInDB(db)
+
+	def init_event(self, name, desc):
+		self.event = self.clkDB.get_event(name)
+		if not self.event:
+			self.clkDB.set_event(name, desc)
+			self.event = self.clkDB.get_event(name)
+		return self.event
+
+	def clock_in(self, pid):
+		return self.clkDB.set_clock_in(self.event.vals['id'], pid)
+
+	def is_clocked(self, pid):
+		return self.clkDB.get_clock_in(self.event.vals['id'], pid)
 
 	def get_persons_info_from_queue(self):
 		try:
@@ -92,14 +114,17 @@ class ClockIn():
 	def put_position(self, left, height):
 		text_position = (left,height)
 		return text_position
+	def add_frame(self, frame, leftTop, rightBottom, color):
+		img = np.zeros((512,512,3), np.uint8)
+		cv2.rectangle(frame, leftTop, rightBottom, color, 5)
 	def add_name_tag(self, frame, per_info):
 		name = per_info['name']
+		clocked = self.is_clocked(per_info['personId'])
 		leftTop = (per_info['faceRectangle']['left'], per_info['faceRectangle']['top'])
 		rightBottom = (per_info['faceRectangle']['left'] + per_info['faceRectangle']['width'],
 						per_info['faceRectangle']['top'] + per_info['faceRectangle']['height'])
-		img = np.zeros((512,512,3), np.uint8)
-		# print(name)
-		cv2.rectangle(frame, leftTop, rightBottom, (55, 255, 155), 5)
+		color = (55, 255, 155)
+		self.add_frame(frame, leftTop, rightBottom, color)
 		cv2.putText(frame, name, leftTop, self.font, self.fontScale, self.fontColor, self.lineType)
 	def start(self):
 		info=None
@@ -116,18 +141,23 @@ class ClockIn():
 					print('tmp-info///yes!')
 					print(tmp_info)
 					info = tmp_info """
-			# print(persons_info)
 			if info:
-				# print(len(info))
 				for x in range(0, len(info)):
 					self.add_name_tag(frame, info[x])
-    			# 	print "We're on time %d" % (x)
-				# cv2.putText(frame,info[0]['name'], self.bottomLeftCornerOfText, self.font, self.fontScale, self.fontColor, self.lineType)
+					self.clock_in(self.event.vals['id'], info[x]['personId'])
 
 			cv2.imshow('Company Meeting Check In Sys', frame)
 
 			if cv2.waitKey(1) & 0xFF == ord('q'):
 				break;
 
-clk = ClockIn()
-clk.start()
+"""
+db = DB('localhost', 'test', '1234', 'testdb')
+clk = ClockIn(db)
+clk.clkDB.create_tables()
+clk.clkDB.set_person_group('ggg', 'groupname', 'pid', 'data')
+clk.clkDB.set_person('ppp', 'name', 'alias', 'ggg')
+clk.init_event('test_event', 'descc')
+clk.clock_in('ppp')
+#clk.start()
+"""
