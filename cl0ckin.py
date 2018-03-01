@@ -155,7 +155,6 @@ class ClockIn():
 			if cv2.waitKey(1) & 0xFF == ord('q'):
 				break;
 
-
 db = DB('localhost', 'test', '1234', 'testdb')
 clk = ClockIn(db)
 clk.clkDB.create_tables()

@@ -124,8 +124,12 @@ class ClockInDB():
 		self.drop_table(self.tables['Face'])
 		self.drop_table(self.tables['Person'])
 		self.drop_table(self.tables['PersonGroup'])
-		for i, table in enumerate(self.tables.items()):
-			table[1].create_table()
+		
+		self.tables['PersonGroup'].create_table()
+		self.tables['Person'].create_table()
+		self.tables['Face'].create_table()
+		self.tables['Event'].create_table()
+		self.tables['ClockIn'].create_table()
 
 	def close(self):
 		db.close()
