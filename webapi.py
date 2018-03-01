@@ -74,7 +74,7 @@ class PersonGroup(MSFaceAPI):
 		#TODO: add userdata if exists
 		response = requests.put(url_persongroup,data=json.dumps(payload),headers=headers)
 		# print ( url_persongroup )
-		# print ( response )
+		print ( response.content )
 		# print( str(self.get_basic_url()) )
 		return json.loads(response.text)
 	def train_person_group( self, person_group_id ):
@@ -86,7 +86,7 @@ class PersonGroup(MSFaceAPI):
 		response = requests.post(url_persongroup,headers=headers)
 		# print( response.content )
 		# print( str(self.get_basic_url()) )
-		return json.loads(response.text)
+		return
 	def get_group( self, person_group_id ):
 		url_persongroup = self.get_basic_url()+'/'+person_group_id
 		headers = {
@@ -115,17 +115,21 @@ class Person(MSFaceAPI):
 		# print('create person')
 		# print( response )
 		return json.loads(response.text)
-	def	add_a_face( self, person_group_id, person_id, person_url ):
-		print('add_a_face')
+	def	add_a_face( self, person_group_id, person_id, image ):
+		print(person_id)
+		# url_person = self.get_basic_url() + '/' + person_group_id + '/persons/'
+# https://[location].api.cognitive.microsoft.com/face/v1.0/persongroups/{personGroupId}/persons/{personId}/persistedFaces[?userData][&targetFace]
 		url_person = self.get_basic_url() + '/' + person_group_id + '/persons/' + person_id + '/persistedFaces'
+		print('url_person')
+
 		headers = {
+			'Content-Type':'application/octet-stream',
 			'Ocp-Apim-Subscription-Key':self.apiKey
 		}
-		payload = {
-			'url': person_url
-		}
-		response = requests.post(url_person,data=json.dumps(payload),headers=headers)
-		# print(response.content)
+		image_data = open(image, 'rb').read()
+
+		response = requests.post(url_person, data=image_data, headers=headers)
+		# response = requests.post(url_person,data=json.dumps(payload),headers=headers)
 		return json.loads(response.text)
 	def get_person_list( self, person_group_id ):
 		print('get person list')
