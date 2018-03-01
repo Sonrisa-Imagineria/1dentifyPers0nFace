@@ -100,7 +100,8 @@ class ClockIn():
 		return self.event
 
 	def clock_in(self, pid):
-		return self.clkDB.set_clock_in(self.event.vals['id'], pid)
+		self.clkDB.set_clock_in(self.event.vals['id'], pid)
+		return self.is_clocked(pid)
 
 	def is_clocked(self, pid):
 		return self.clkDB.get_clock_in(self.event.vals['id'], pid)
@@ -123,9 +124,12 @@ class ClockIn():
 		leftTop = (per_info['faceRectangle']['left'], per_info['faceRectangle']['top'])
 		rightBottom = (per_info['faceRectangle']['left'] + per_info['faceRectangle']['width'],
 						per_info['faceRectangle']['top'] + per_info['faceRectangle']['height'])
-		color = (55, 255, 155)
+		if clocked:
+			color = (55, 255, 155)
+			cv2.putText(frame, name, leftTop, self.font, self.fontScale, self.fontColor, self.lineType)
+		else:
+			color = (255, 0, 0)
 		self.add_frame(frame, leftTop, rightBottom, color)
-		cv2.putText(frame, name, leftTop, self.font, self.fontScale, self.fontColor, self.lineType)
 	def start(self):
 		info=None
 		while True:
@@ -151,13 +155,13 @@ class ClockIn():
 			if cv2.waitKey(1) & 0xFF == ord('q'):
 				break;
 
-"""
+
 db = DB('localhost', 'test', '1234', 'testdb')
 clk = ClockIn(db)
 clk.clkDB.create_tables()
 clk.clkDB.set_person_group('ggg', 'groupname', 'pid', 'data')
 clk.clkDB.set_person('ppp', 'name', 'alias', 'ggg')
 clk.init_event('test_event', 'descc')
-clk.clock_in('ppp')
+res = clk.clock_in('ppp')
+print(clk.is_clocked('ppp'))
 #clk.start()
-"""

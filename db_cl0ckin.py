@@ -73,7 +73,7 @@ class ClockInDB():
 		})
 	
 	def get_clock_in(self, eid, pid):
-		results = self.tables['Event'].select_rec('pid', pid)
+		results = self.tables['ClockIn'].select_rec('pid', pid)
 		for rec in results:
 			if eid == rec.get_val(eid):
 				return rec
@@ -142,9 +142,9 @@ class ClockInDBBuilder():
 		self.imageDir = imageDir
 
 	def build(self):
-		clkDB.create_tables()
-		self.build_person_group(gid, groupName, None)
-		clkDB.close()
+		self.clkDB.create_tables()
+		#self.build_person_group(gid, groupName, None)
+		self.clkDB.close()
 		return
 
 	def build_person_group(self, gid, name, userData):
@@ -152,7 +152,7 @@ class ClockInDBBuilder():
 		personGroupAPI = PersonGroup()
 		resp = personGroupAPI.train_person_group()
 		# save into db
-		clkDB.set_person_group(gid, name, userData)
+		self.clkDB.set_person_group(gid, name, userData)
 		for dirpath, dirs, files in os.walk(self.imageDir):	
 			for filename in files:
 				imageName = os.path.splitext(filename)[0]
@@ -176,7 +176,7 @@ class ClockInDBBuilder():
 			resp = personAPI.create(gid, alias, alias)
 			personId = resp['personId']
 			# save into db
-			personRec = clkDB.set_person(personId, alias, alias)
+			personRec = self.clkDB.set_person(personId, alias, alias)
 			exsitingPerson[alias] = personRec
 		except:
 			print("Error: failed to build person")
@@ -191,7 +191,7 @@ class ClockInDBBuilder():
 			resp = personAPI.add_a_face(gid, pid, imagePath)
 			fid = resp['persistedFaceId']
 			# save into db
-			clkDB.set_face(fid, imagePath, pid)
+			self.clkDB.set_face(fid, imagePath, pid)
 		except:
 			print("Error: failed to build face")
 			fid = None
@@ -202,5 +202,5 @@ db = DB('localhost', 'test', '1234', 'testdb')
 clkDB = ClockInDB(db)
 builder = ClockInDBBuilder(clkDB, 'image')
 
-#builder.build()
+builder.build()
 
